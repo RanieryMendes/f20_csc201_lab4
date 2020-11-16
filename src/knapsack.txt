@@ -1,0 +1,9 @@
+an integer representing the capacity of the knapsack
+the number of things available to pack
+a list of the weights of each of these things (integers)
+a list of the values of each of these things (integers)
+
+
+20
+50
+2
