@@ -1,11 +1,18 @@
+/*
+Raniery Mendes
+CSC201 Fall 2020
+Programming Assignment 4
+November 24, 2020
+ */
+
+//Class that implements the knapsack and performs the greedy and optimal filling methods
 
 import java.util.ArrayList;
-
-
 import java.util.Arrays;
 
 public class knapsack {
 
+    //arraylist that will perform the role of the knapsack, so it store the things objects added to the sac
     ArrayList<Things> bag;
 
     int sac_capacity = 0;
@@ -15,166 +22,178 @@ public class knapsack {
     int value;
 
     int length_list;
-    Things[] forOptimal;
 
-    Things[] listOfThings;
+    Things[] listOfThings_optimal;
+
+    Things[] listOfThings_greedy;
 
 
+    //constructor that receives as parameters the total capacity the knapsack will have and the list of Things objects
     knapsack(int total_capacity, ArrayList<Things> list) {
+
         bag = new ArrayList<>();
         length_list = list.size();
         sac_capacity = total_capacity;
         value = 0;
-        forOptimal = list.toArray(new Things[list.size()]);
-        listOfThings = list.toArray(new Things[list.size()]);
+
+        //set two different variable to the list of Things objects because greedyFill method will alter the list's order.
+        listOfThings_optimal = list.toArray(new Things[list.size()]);
+        listOfThings_greedy = list.toArray(new Things[list.size()]);
 
 
     }
 
 
+    //method that performs a greedy filling of the knpasack
     public void greedyFill() {
 
-        System.out.println("Performing the greedyFill Method");
+        System.out.println("Performing the greedyFill Method:");
 
-        Arrays.sort(listOfThings);
-
-        for (int i = 0; i < listOfThings.length; i++) {
-            System.out.println("i:" + i + " value: " + listOfThings[i].getValue() + " weight: " + listOfThings[i].getWeight());
-        }
-
-        int i = 0;
-        for (int j = 0; j < listOfThings.length; j++) {
+        //Sort the list of things objects by value using the overriden comparable.
+        Arrays.sort(listOfThings_greedy); //the list is sorted in descending order so at index 0 is the things will highest value
 
 
-            if ((current_capacity + listOfThings[i].getWeight()) < sac_capacity) {
+        //variable that will keep track of the total value stored in the sac
+        int total_value =0;
 
-                bag.add(listOfThings[i]);
 
-                current_capacity = current_capacity + listOfThings[i].getWeight();
+        //loop that iterates through the whole list of things objects
+        //within the loop is evaluated which items can fit in the knapsack
+        for (int j = 0; j < listOfThings_greedy.length; j++) {
+
+
+            //this statement checks if it is
+            if ((current_capacity + listOfThings_greedy[j].getWeight()) < sac_capacity) {
+
+                bag.add(listOfThings_greedy[j]);
+
+                total_value = total_value + listOfThings_greedy[j].getValue();
+
+
+                current_capacity = current_capacity + listOfThings_greedy[j].getWeight();
             }
 
-            i++;
+
         }
 
+        //print statements about the results obtained using this filling method
 
-        System.out.println(" ");
+        System.out.println("Total value in my knapsack: " + total_value + ". The total weight in the knapsack is: " + current_capacity);
+        System.out.println("There are " + bag.size() + " item in my knapsack");
+        if(bag.size() <= 15) {
 
-        System.out.println("That is my bag. Its total weight is:  " + current_capacity);
-        for (int t = 0; t < bag.size(); t++) {
-            System.out.println("t:" + t + " value: " + bag.get(t).getValue() + " weight:" + bag.get(t).getWeight());
+
+            System.out.println("These are the items stored in the knapsack: ");
+            for (int t = 0; t < bag.size(); t++) {
+                System.out.println("Weight:" + bag.get(t).getWeight() + " Value:" + bag.get(t).getValue());
+            }
         }
 
 
     }
 
+    //method that performs a optimal filling of the knapsack
     public void optimalFill() {
 
-        System.out.println("Performing optimal Fill: ");
+        System.out.println("Performing optimalFill Method: ");
 
-        int[] array_of_weights = new int[length_list];
-
-        for (int i = 0; i < length_list; i++) {
-            array_of_weights[i] = listOfThings[i].getWeight();
-        }
-
-        int[] array_of_values = new int[length_list];
-
-
-        for (int i = 0; i < length_list; i++) {
-            array_of_values[i] = listOfThings[i].getValue();
-        }
-
-
-       // System.out.println(knapsack(array_of_weights, array_of_values, sac_capacity, 0));
-
-        for (int i = 0; i < bag.size(); i++) {
-
-            System.out.println("Bag poderosa: " + bag.size() + " items");
-
-            System.out.println("i: " + i + " Value: " + bag.get(i).getValue() + "  Weight: " + bag.get(i).getWeight());
-
-        }
-        System.out.println();
-
+        //ArrrayList that will store all the Things that will be inserted into the Knapsack
         ArrayList<Things> taken = new ArrayList<Things>();
-        System.out.println( "Total value in my knapsack: " +KnapSack(sac_capacity, forOptimal, forOptimal.length, taken));
 
-        System.out.println("There are "+ taken.size() +  " items inside the knapsack: ");
+        //Perform filling with optimization using recursion
+        //Inform knapsack's value and size
+        System.out.print( "Total value in my knapsack: " + optimization(sac_capacity, listOfThings_optimal, listOfThings_optimal.length, taken) );
 
-        for (int i = 0; i< taken.size(); i++){
-            System.out.println("This is my weight: " +taken.get(i).getWeight() + " This is my value:  " +taken.get(i).getValue());
+        //Assign the array of taken Thing objects to the knapsack private variable
+        bag = taken;
+
+        //gets total weight stored in the sac
+        int total_weight=0;
+
+        for (int i =0; i<bag.size(); i++){
+
+            total_weight = total_weight + bag.get(i).getWeight();
+
+        }
+        System.out.println(". The total weight in the knapsack is: " +total_weight);
+
+
+        System.out.println("There are "+ taken.size() +  " items in the knapsack.");
+
+
+        //If knapsack stored 15 or less Things objects, print out their values and weights
+        if(bag.size()<=15) {
+
+            System.out.println("These are the items stored in the knapsack: ");
+            for (int i = 0; i < bag.size(); i++) {
+                System.out.println("Weight:" + bag.get(i).getWeight() + " Value:" + bag.get(i).getValue());
+            }
         }
 
 
     }
 
-    //change code
-
-    public int knapsack(int[] weight, int[] val, int w, int itemNum) {
-        if (w == 0 || itemNum == weight.length) {
-
-            if (w == 0) {
-                System.out.println(weight[itemNum] + "  val: " + val[itemNum]);
-            }
 
 
-            return 0;
-        }
+    //recursive method that performs the brutal work of optimal filling the knapsack
+    //it carries out backtracking
 
-        if (weight[itemNum] > w) {
-
-
-            return knapsack(weight, val, w, itemNum + 1);
-        } else {
-
-            int rMax = val[itemNum] + knapsack(weight, val, w - weight[itemNum], itemNum + 1);
-            int lMax = knapsack(weight, val, w, itemNum + 1);
-
-            if (rMax == Math.max(rMax, lMax)) {
-
-                System.out.println("ADICIONAR: RIGHT " + weight[itemNum]);
-            }
-
-            if (lMax == Math.max(rMax, lMax)) {
-                System.out.println("ADICIONAR: LEFT " + lMax);
-            }
-            //System.out.println( "O maior:  "+ Math.max(rMax, lMax));
+    public int optimization(int capacity, Things[] items, int numItems, ArrayList<Things> taken) {
 
 
-            return Math.max(rMax, lMax);
-        }
-    }
-
-
-    public int KnapSack(int capacity, Things[] items, int numItems, ArrayList<Things> taken) {
-        System.out.println("Current Capacity" + capacity);
-
-
+        //check base case: if either it has already visited all possible things objects or if it has reached maximum weight capacity
         if (numItems == 0 || capacity == 0)
             return 0;
+
+        //if adding the next object of the list of Things object will exceed the knapsack maximum weight capacity,
+        // it makes a recursive call moving to the next Thing object of the list (since it cannot take this object in)
         if (items[numItems - 1].getWeight() > capacity)
-            return KnapSack(capacity, items, numItems - 1, taken);
+            return optimization(capacity, items, numItems - 1, taken);
+
+
+
+        //else statement = take the element in
         else {
-            final int preTookSize = taken.size();
-            final int took = items[numItems - 1].getValue() + KnapSack(capacity - items[numItems - 1].getWeight(), items, numItems - 1, taken);
 
-            final int preLeftSize = taken.size();
-            final int left = KnapSack(capacity, items, numItems - 1, taken);
+             //keep track of the current size of the knapsack before going into another recursive call
+             int preSize = taken.size();
 
-            if (took > left) {
-                if (taken.size() > preLeftSize)
-                    taken.subList(preLeftSize, taken.size()).clear();
-                    //taken.removeRange(preLeftSize, taken.size());
+             //perform recursive call adding element to the "right subtree". This variable will store the value of the right node solution
+             int right = items[numItems - 1].getValue() + optimization(capacity - items[numItems - 1].getWeight(), items, numItems - 1, taken);
 
-                //taken.add(Integer.valueOf(numItems - 1));
-                taken.add(items[numItems-1]);
+             //get the new current size of the bag after performing the recursive call above
+             int pre_left_length = taken.size();
+
+            //perform recursive call adding element to the "left subtree". This variable will store the value of the left node solution
+             int left = optimization(capacity, items, numItems - 1, taken);
+
+
+             //check which of the sides has the greatest value, that is,
+            // check whether its is the right or left node that has the best "solution" ( best filling of the knapsack)
+
+
+            if (right > left) { //right node offers best solution (highest value)
+
+                //readjust (clean) the knapsack and add the item to the bag
+                if (taken.size() > pre_left_length )
+                     taken.subList(pre_left_length , taken.size()).clear();
+
+                    //add thing object to the knapsack
+                     taken.add(items[numItems-1]);
+
 
                 taken.indexOf(items);
-                return took;
-            } else {
-                if (preLeftSize > preTookSize)
-                    taken.subList(preTookSize, preLeftSize).clear();
-                   // taken.removeRange(preTookSize, preLeftSize);
+                return right;
+            }
+
+
+
+            else {//left node offers best solution (highest value)
+
+                //readjust (clean) the knapsack
+                if (pre_left_length  > preSize)
+                    taken.subList(preSize, pre_left_length ).clear();
+
 
                 return left;
             }

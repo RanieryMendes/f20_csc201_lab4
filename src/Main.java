@@ -1,65 +1,86 @@
+/*
+Raniery Mendes
+CSC201 Fall 2020
+Programming Assignment 4
+November 24, 2020
+ */
 
+// This program performs the implementation of the knapsack algorithm with the greedyFill and optimaFill methods.
 
+// This program reads input from the knapsack.txt file
 
 import java.io.FileNotFoundException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
-
 import java.io.File;
 import java.util.Scanner;
 
 public class Main {
 
-
-
-
     public static void main(String[] args) throws FileNotFoundException {
 
 
-        /* an integer representing the capacity of the knapsack
-the number of things available to pack
-a list of the weights of each of these things (integers)
-a list of the values of each of these things (integers)*/
-
+        //file object that gets the txt file that contains the relevant data used by this program
         File txt = new File("/Users/ranierymendes/Documents/lab4/src/knapsack.txt");
 
+        //scanner object to read the file mentioned above
         Scanner reader = new Scanner(txt);
 
-        int a;
-        int b;
+        //variables that will store important information for resolution of the knapsack problem
 
-        int[ ]w ;
+        int capacity_knapsack;
+        int total_things_available;
+
+        //arrays that will store respectively the list of weights and values sent by the txt file
+        int[]w ;
 
         int [] v;
 
+
+        //read text file and assigns the  data to proper variables (as clarified above)
         while (reader.hasNextLine()){
 
-            a = Integer.parseInt(reader.next());
+            capacity_knapsack = Integer.parseInt(reader.next());
 
-            b=Integer.parseInt(reader.next());
+            total_things_available=Integer.parseInt(reader.next());
 
-            w = new int[b];
+            w = new int[total_things_available];
 
-            v = new int[b];
+            v = new int[total_things_available];
 
-            for(int i=0; i<b; i++){
+            //populate the arrays of values and weights, ensuring that each thing will have the proper value and weight as set by the txt file
+
+            for(int i=0; i<total_things_available; i++){
                 w[i]=Integer.parseInt(reader.next());
             }
 
-            for(int i=0; i<b; i++){
+            for(int i=0; i<total_things_available; i++){
                 v[i] = Integer.parseInt(reader.next());
             }
 
-            for (int i = 0; i < b; i++) {
-                System.out.println("i: "+ i +" Weight: " + w[i] +" Value: " + v[i] );
+            //if the number of total things available to be stored in the knapsack is <= 15,
+            // print out all the things objects' values and weights
+
+            if(total_things_available <=15) {
+
+                System.out.println("There are " + total_things_available + " items available to be added to the knapsack. They are:");
+
+                for (int i = 0; i < total_things_available; i++) {
+
+                    System.out.println("T:" + i + " Weight: " + w[i] + " Value: " + v[i]);
 
 
+                }
+                System.out.println("\n");
             }
 
-            System.out.println("Total capacity: " + a);
+            //Arraylist that will store the Things objects
             ArrayList<Things> list_of_things = new ArrayList<>();
 
-            for (int i = 0; i < b ; i++) {
 
+            //for loop that creates a Things object, assigns its correct value and weight, and finally performs the insertion of that
+            // newly created object into the Arraylist
+            for (int i = 0; i < total_things_available ; i++) {
 
                 Things obj = new Things();
 
@@ -68,23 +89,21 @@ a list of the values of each of these things (integers)*/
 
                 list_of_things.add(obj);
 
-                System.out.println(i +": Weight:  " + w[i] + " Value: " + v[i]);
 
             }
 
-            knapsack knapsack = new knapsack(a, list_of_things);
 
-            knapsack knapsack1 = new knapsack(a, list_of_things);
-
-
+            //create instance of knapsack class to call filler methods
+            knapsack knapsack = new knapsack(capacity_knapsack, list_of_things);
 
 
-            ArrayList<Integer> taken  =new ArrayList<Integer>();
-            System.out.println(list_of_things.size());
-
+            //call greedyFill method
             knapsack.greedyFill();
-            knapsack1.optimalFill();
 
+            System.out.println("\n");
+
+            //call optimalFill method
+            knapsack.optimalFill();
 
 
 
